@@ -6,6 +6,16 @@
 - **Deployed Site**: [Anti-News Platform on Vercel](https://the-project-of-anti-news.vercel.app/)
 - **GitHub Repository**: https://github.com/ShawnLee13/the-project-of-anti_news.git)
 
+## 🛠️ Tech Stack
+
+- **Frontend Framework**: Vue 3
+- **Build Tool**: Vite
+- **State Management**: Pinia
+- **Routing**: Vue Router
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios
+- **Deployment**: Vercel
+
 ## 👥 Our Team
 - **20232051 LiShengliang**
 - **20232048 XieQinxi**
