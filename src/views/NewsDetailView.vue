@@ -1,7 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
-      <div v-if="news" class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <!-- 返回按钮 -->
+      <router-link to="/" class="inline-flex items-center px-4 py-2 bg-white rounded-lg shadow-sm text-gray-700 hover:bg-gray-50 transition-all mb-6 transform hover:-translate-y-0.5">
+        <i class="fa fa-arrow-left mr-2 text-gray-500"></i>
+        返回首页
+      </router-link>
+      
+      <div v-if="news" class="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-lg">
         <!-- News Header -->
         <div class="p-6 border-b border-gray-100">
           <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-2">
@@ -41,13 +47,18 @@
         </div>
 
         <!-- News Image -->
-        <div v-if="news.imageUrl" class="w-full h-64 md:h-96 overflow-hidden bg-gray-100">
+        <div v-if="news.imageUrl" class="w-full h-64 md:h-96 overflow-hidden bg-gray-100 relative group">
           <img 
             :src="news.imageUrl" 
             alt="{{ news.title }}"
-            class="w-full h-full object-cover transition-transform hover:scale-105 duration-700"
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           >
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+            <button class="bg-white/90 text-gray-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-white transition-colors">
+              <i class="fa fa-search-plus mr-1"></i> 查看大图
+            </button>
+          </div>
         </div>
 
         <!-- News Content -->
@@ -57,7 +68,7 @@
           </div>
 
           <!-- Voting Section -->
-          <div class="border-t border-b border-gray-100 py-6 mb-8 bg-gray-50">
+          <div class="border-t border-b border-gray-100 py-6 mb-8 bg-gray-50 animate-fadeIn">
             <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
               <i class="fa fa-vote-yea mr-2 text-blue-600"></i>社区投票
             </h3>
@@ -124,21 +135,23 @@
             <div class="flex flex-wrap gap-4 justify-center">
               <button 
                 @click="vote('fake')" 
-                :class="['px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2', 
+                :class="['px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2', 
                   voted === 'fake' 
-                    ? 'bg-red-500 text-white shadow-md focus:ring-red-500 focus:ring-offset-red-100'
+                    ? 'bg-red-500 text-white shadow-md focus:ring-red-500 focus:ring-offset-red-100' 
                     : 'bg-white text-red-600 border border-red-200 shadow-sm hover:bg-red-50 focus:ring-red-500 focus:ring-offset-white']"
                 :disabled="voted !== null"
+                aria-label="标记为假新闻"
               >
                 <i class="fa fa-times-circle mr-2"></i> 标记为假新闻
               </button>
               <button 
                 @click="vote('notFake')" 
-                :class="['px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2', 
+                :class="['px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2', 
                   voted === 'notFake' 
-                    ? 'bg-green-500 text-white shadow-md focus:ring-green-500 focus:ring-offset-green-100'
+                    ? 'bg-green-500 text-white shadow-md focus:ring-green-500 focus:ring-offset-green-100' 
                     : 'bg-white text-green-600 border border-green-200 shadow-sm hover:bg-green-50 focus:ring-green-500 focus:ring-offset-white']"
                 :disabled="voted !== null"
+                aria-label="标记为非假新闻"
               >
                 <i class="fa fa-check-circle mr-2"></i> 标记为非假新闻
               </button>
@@ -156,7 +169,7 @@
           </div>
 
           <!-- Comments Section -->
-          <div>
+          <div ref="commentsSection">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <h3 class="text-xl font-semibold text-gray-800 flex items-center">
                 <i class="fa fa-comments mr-2 text-blue-600"></i>评论与证据 ({{ news.comments.length }})
@@ -206,7 +219,7 @@
                 <div class="md:col-span-2 flex justify-end">
                   <button 
                     @click="submitComment" 
-                    class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     :disabled="!newComment.content.trim() || !newComment.submitterName.trim()"
                   >
                     <i class="fa fa-paper-plane mr-2"></i> 提交评论
@@ -227,7 +240,7 @@
             
             <!-- Comment Pagination -->
             <div v-if="totalCommentPages > 1" class="mt-8 flex justify-center">
-              <nav class="inline-flex rounded-md shadow">
+              <nav class="inline-flex rounded-md shadow-sm">
                 <button 
                   @click="currentCommentPage = 1" 
                   :disabled="currentCommentPage === 1"
@@ -286,10 +299,10 @@
       </div>
       
       <!-- Loading/Not Found -->
-      <div v-else class="bg-white p-12 rounded-xl shadow-sm text-center">
-        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mx-auto mb-6">
-          <i class="fa fa-search text-3xl"></i>
-        </div>
+        <div v-else class="bg-white p-12 rounded-xl shadow-md text-center transform transition-all duration-300 hover:shadow-lg">
+          <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-400 mx-auto mb-6">
+            <i class="fa fa-exclamation-circle text-3xl"></i>
+          </div>
         <h3 class="text-xl font-semibold text-gray-800 mb-2">新闻不存在或已被删除</h3>
         <p class="text-gray-600 max-w-md mx-auto mb-6">抱歉，您请求的新闻无法找到。可能已经被删除或您输入了错误的链接。</p>
         <router-link to="/" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
@@ -522,4 +535,51 @@ const formatDate = (dateString) => {
 
 <style scoped>
 /* NewsDetailView specific styles */
+</style>
+
+<style>
+/* Global animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Improve focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
 </style>

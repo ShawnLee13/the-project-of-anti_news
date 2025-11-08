@@ -219,8 +219,41 @@ export const useNewsStore = defineStore('news', {
     loadNews() {
       if (this.loaded) return
       
+
+      // 定义不同分类的图片ID映射
+      const categoryImages = {
+        '太空': [1, 20, 42, 43, 113],
+        '天气': [28, 29, 101, 102, 103],
+        '地质': [104, 105, 106, 107, 108],
+        '环境': [111, 112, 134, 135, 136],
+        '科学': [119, 129, 144, 145, 146],
+        '技术': [180, 160, 190, 191, 192],
+        '历史': [30, 31, 32, 33, 34],
+        '其他': [96, 97, 98, 99, 100]
+      }
+      
       // Always use the latest mock data to ensure content quality and accuracy
-      this.news = JSON.parse(JSON.stringify(mockNews))
+      const newsData = JSON.parse(JSON.stringify(mockNews))
+      
+      // 确保每条新闻都有与分类相关的图片
+      this.news = newsData.map(news => {
+        // 如果新闻已经有图片URL，保持不变
+        if (news.imageUrl) {
+          return news
+        }
+        
+        // 如果没有图片URL，根据分类选择相关图片
+        const category = news.category || '其他'
+        const imageIds = categoryImages[category] || categoryImages['其他']
+        const randomIndex = Math.floor(Math.random() * imageIds.length)
+        const imageId = imageIds[randomIndex]
+        
+        return {
+          ...news,
+          imageUrl: `https://picsum.photos/id/${imageId}/800/400`
+        }
+      })
+      
       this.loaded = true
       
       // Save to localStorage for persistence
@@ -234,9 +267,32 @@ export const useNewsStore = defineStore('news', {
 
     // Add a new news item
     addNews(newsData) {
+      // 定义不同分类的图片ID映射
+      const categoryImages = {
+        '太空': [1, 20, 42, 43, 113],
+        '天气': [28, 29, 101, 102, 103],
+        '地质': [104, 105, 106, 107, 108],
+        '环境': [111, 112, 134, 135, 136],
+        '科学': [119, 129, 144, 145, 146],
+        '技术': [180, 160, 190, 191, 192],
+        '历史': [30, 31, 32, 33, 34],
+        '其他': [96, 97, 98, 99, 100]
+      }
+
+      // 当没有提供图片URL时，根据分类选择相关图片
+      let imageUrl = newsData.imageUrl
+      if (!imageUrl) {
+        const category = newsData.category || '其他'
+        const imageIds = categoryImages[category] || categoryImages['其他']
+        const randomIndex = Math.floor(Math.random() * imageIds.length)
+        const imageId = imageIds[randomIndex]
+        imageUrl = `https://picsum.photos/id/${imageId}/800/400`
+      }
+
       const newNews = {
         id: Date.now().toString(),
         ...newsData,
+        imageUrl,
         submitTime: new Date().toISOString(),
         fakeVotes: 0,
         notFakeVotes: 0,

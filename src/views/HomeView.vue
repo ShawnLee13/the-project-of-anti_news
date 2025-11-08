@@ -1,40 +1,86 @@
 <template>
   <div>
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">新闻列表</h2>
-    
-    <!-- Filter Controls - Member B's Responsibility -->
-    <div class="bg-white p-4 rounded-lg shadow-sm mb-6 transition-all duration-300 hover:shadow-md">
-      <div class="flex flex-wrap gap-4 items-end justify-between">
-        <div class="flex flex-wrap gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">分类筛选</label>
-            <select v-model="selectedCategory" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-              <option value="all">全部分类</option>
-              <option value="太空">太空</option>
-              <option value="天气">天气</option>
-              <option value="地质">地质</option>
-              <option value="环境">环境</option>
-              <option value="科学">科学</option>
-              <option value="技术">技术</option>
-              <option value="历史">历史</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">状态筛选</label>
-            <select v-model="selectedStatus" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-              <option value="all">全部状态</option>
-              <option value="pending">待验证</option>
-              <option value="fake">假新闻</option>
-              <option value="verified">已验证</option>
-              <option value="contested">有争议</option>
-            </select>
-          </div>
-        </div>
-        
-        <!-- Pagination Controls -->
+    <!-- Category Tags -->
+    <div class="mb-8">
+      <h3 class="text-lg font-semibold text-gray-700 mb-4">热门分类</h3>
+      <div class="flex flex-wrap gap-2">
+        <button 
+          @click="selectedCategory = 'all'"
+          :class="['px-4 py-2 rounded-full text-sm font-medium transition-all', 
+            selectedCategory === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300']"
+        >
+          全部
+        </button>
+        <button 
+          @click="selectedCategory = '太空'"
+          :class="['px-4 py-2 rounded-full text-sm font-medium transition-all', 
+            selectedCategory === '太空' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300']"
+        >
+          太空
+        </button>
+        <button 
+          @click="selectedCategory = '天气'"
+          :class="['px-4 py-2 rounded-full text-sm font-medium transition-all', 
+            selectedCategory === '天气' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300']"
+        >
+          天气
+        </button>
+        <button 
+          @click="selectedCategory = '技术'"
+          :class="['px-4 py-2 rounded-full text-sm font-medium transition-all', 
+            selectedCategory === '技术' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300']"
+        >
+          技术
+        </button>
+        <button 
+          @click="selectedCategory = '科学'"
+          :class="['px-4 py-2 rounded-full text-sm font-medium transition-all', 
+            selectedCategory === '科学' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300']"
+        >
+          科学
+        </button>
+        <button 
+          @click="selectedCategory = '环境'"
+          :class="['px-4 py-2 rounded-full text-sm font-medium transition-all', 
+            selectedCategory === '环境' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300']"
+        >
+          环境
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="bg-white p-6 rounded-xl shadow-md mb-8 transition-all duration-300 hover:shadow-lg">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <i class="fa fa-filter text-blue-600 mr-2"></i>筛选条件
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">每页显示</label>
-          <select v-model="pageSize" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+          <label class="block text-sm font-medium text-gray-700 mb-2">分类筛选</label>
+          <select v-model="selectedCategory" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <option value="all">全部分类</option>
+            <option value="太空">太空</option>
+            <option value="天气">天气</option>
+            <option value="地质">地质</option>
+            <option value="环境">环境</option>
+            <option value="科学">科学</option>
+            <option value="技术">技术</option>
+            <option value="历史">历史</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">状态筛选</label>
+          <select v-model="selectedStatus" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <option value="all">全部状态</option>
+            <option value="pending">待验证</option>
+            <option value="fake">假新闻</option>
+            <option value="verified">已验证</option>
+            <option value="contested">有争议</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">每页显示</label>
+          <select v-model="pageSize" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
             <option :value="5">5条</option>
             <option :value="10">10条</option>
             <option :value="15">15条</option>
@@ -44,7 +90,7 @@
     </div>
 
     <!-- News List -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <NewsCard 
         v-for="news in paginatedNews" 
         :key="news.id" 
@@ -104,9 +150,18 @@
     </div>
 
     <!-- No News Found -->
-    <div v-if="filteredNews.length === 0" class="bg-white p-8 rounded-lg shadow-sm text-center">
-      <i class="fa fa-search text-gray-400 text-4xl mb-4"></i>
-      <p class="text-gray-600">没有找到符合条件的新闻</p>
+    <div v-if="filteredNews.length === 0" class="bg-white p-12 rounded-xl shadow-sm text-center mt-8">
+      <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-400 mx-auto mb-6">
+        <i class="fa fa-search text-3xl"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-800 mb-2">没有找到符合条件的新闻</h3>
+      <p class="text-gray-600 max-w-md mx-auto mb-6">尝试调整筛选条件或查看其他分类的新闻</p>
+      <button 
+        @click="resetFilters"
+        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+      >
+        <i class="fa fa-refresh mr-2"></i> 重置筛选条件
+      </button>
     </div>
   </div>
 </template>
@@ -135,6 +190,14 @@ const resetPage = () => {
 // Watch filters to reset pagination
 const unwatchCategory = watch(selectedCategory, resetPage)
 const unwatchStatus = watch(selectedStatus, resetPage)
+
+// Reset all filters
+const resetFilters = () => {
+  selectedCategory.value = 'all'
+  selectedStatus.value = 'all'
+  pageSize.value = 10
+  currentPage.value = 1
+}
 
 // Filter news based on category and status
 const filteredNews = computed(() => {
