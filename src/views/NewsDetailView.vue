@@ -157,9 +157,23 @@
 
           <!-- Comments Section -->
           <div>
-            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-              <i class="fa fa-comments mr-2 text-blue-600"></i>评论与证据 ({{ news.comments.length }})
-            </h3>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fa fa-comments mr-2 text-blue-600"></i>评论与证据 ({{ news.comments.length }})
+              </h3>
+              <div class="flex items-center gap-3">
+                <label class="text-sm text-gray-600">每页显示：</label>
+                <select 
+                  v-model="commentPageSize" 
+                  class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  @change="currentCommentPage = 1"
+                >
+                  <option :value="5">5条</option>
+                  <option :value="10">10条</option>
+                  <option :value="15">15条</option>
+                </select>
+              </div>
+            </div>
             
             <!-- Add Comment Form -->
             <div class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm">
@@ -204,11 +218,61 @@
             <!-- Comments List -->
             <div v-if="news.comments.length > 0" class="space-y-6">
               <CommentItem 
-                v-for="comment in news.comments" 
+                v-for="comment in paginatedComments" 
                 :key="comment.id" 
                 :comment="comment" 
                 @commentUpdated="handleCommentUpdate(comment.id, $event)"
               />
+            </div>
+            
+            <!-- Comment Pagination -->
+            <div v-if="totalCommentPages > 1" class="mt-8 flex justify-center">
+              <nav class="inline-flex rounded-md shadow">
+                <button 
+                  @click="currentCommentPage = 1" 
+                  :disabled="currentCommentPage === 1"
+                  class="px-4 py-2 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                >
+                  <i class="fa fa-angle-double-left"></i>
+                </button>
+                <button 
+                  @click="currentCommentPage--" 
+                  :disabled="currentCommentPage === 1"
+                  class="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                >
+                  <i class="fa fa-angle-left"></i>
+                </button>
+                
+                <button 
+                  v-for="page in visibleCommentPages" 
+                  :key="page"
+                  @click="currentCommentPage = page"
+                  class="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium transition-colors"
+                  :class="{ 'bg-blue-50 text-blue-600': currentCommentPage === page, 'text-gray-700 hover:bg-gray-50': currentCommentPage !== page }"
+                >
+                  {{ page }}
+                </button>
+                
+                <button 
+                  @click="currentCommentPage++" 
+                  :disabled="currentCommentPage === totalCommentPages"
+                  class="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                >
+                  <i class="fa fa-angle-right"></i>
+                </button>
+                <button 
+                  @click="currentCommentPage = totalCommentPages" 
+                  :disabled="currentCommentPage === totalCommentPages"
+                  class="px-4 py-2 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                >
+                  <i class="fa fa-angle-double-right"></i>
+                </button>
+              </nav>
+            </div>
+            
+            <!-- Comment Pagination Info -->
+            <div v-if="totalCommentPages > 0" class="mt-4 text-center text-sm text-gray-500">
+              显示 {{ startCommentIndex + 1 }} - {{ endCommentIndex }} 条，共 {{ news.comments.length }} 条评论
             </div>
             <div v-else class="text-center py-12 bg-gray-50 rounded-lg">
               <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mx-auto mb-4">
@@ -258,6 +322,10 @@ const newComment = ref({
   imageUrl: '',
   submitterName: ''
 })
+
+// Comment pagination state
+const currentCommentPage = ref(1)
+const commentPageSize = ref(5)
 
 // Load news data
 onMounted(async () => {
@@ -367,6 +435,9 @@ const submitComment = () => {
   // Update the local news data
   news.value = newsStore.getNewsById(newsId)
   
+  // Reset pagination to show the new comment at the beginning
+  resetCommentPagination()
+  
   // Show success message
   voteMessage.value = '评论提交成功！'
   voteMessageType.value = 'bg-green-100 text-green-800'
@@ -381,6 +452,59 @@ const submitComment = () => {
 const handleCommentUpdate = () => {
   // Refresh news data from store to get the latest comments, likes and replies
   news.value = newsStore.getNewsById(newsId)
+}
+
+// Comment pagination computed properties
+const totalCommentPages = computed(() => {
+  if (!news.value || !news.value.comments) return 0
+  return Math.ceil(news.value.comments.length / commentPageSize.value)
+})
+
+const startCommentIndex = computed(() => {
+  return (currentCommentPage.value - 1) * commentPageSize.value
+})
+
+const endCommentIndex = computed(() => {
+  if (!news.value || !news.value.comments) return 0
+  return Math.min(startCommentIndex.value + commentPageSize.value, news.value.comments.length)
+})
+
+const paginatedComments = computed(() => {
+  if (!news.value || !news.value.comments) return []
+  return news.value.comments.slice(startCommentIndex.value, endCommentIndex.value)
+})
+
+const visibleCommentPages = computed(() => {
+  const total = totalCommentPages.value
+  const current = currentCommentPage.value
+  const pages = []
+  
+  if (total <= 5) {
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    if (current <= 3) {
+      for (let i = 1; i <= 5; i++) {
+        pages.push(i)
+      }
+    } else if (current >= total - 2) {
+      for (let i = total - 4; i <= total; i++) {
+        pages.push(i)
+      }
+    } else {
+      for (let i = current - 2; i <= current + 2; i++) {
+        pages.push(i)
+      }
+    }
+  }
+  
+  return pages
+})
+
+// Reset comment pagination when submitting a new comment
+const resetCommentPagination = () => {
+  currentCommentPage.value = 1
 }
 
 // Format date

@@ -44,9 +44,5 @@ onMounted(() => {
 </script>
 
 <style>
-/* Global styles */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-}
+/* Global styles - Tailwind CSS will handle most styling */
 </style>

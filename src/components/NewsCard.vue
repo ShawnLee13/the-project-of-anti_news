@@ -1,54 +1,62 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
     <!-- News Image -->
-    <div v-if="news.imageUrl" class="w-full h-48 overflow-hidden">
-      <img :src="news.imageUrl" alt="{{ news.title }}" class="w-full h-full object-cover transition-transform hover:scale-105 duration-500">
+    <div v-if="news.imageUrl" class="w-full h-48 sm:h-56 overflow-hidden">
+      <img 
+        :src="news.imageUrl" 
+        :alt="news.title" 
+        class="w-full h-full object-cover transition-transform duration-700 ease-in-out hover:scale-110"
+      >
     </div>
-    <div v-else class="w-full h-48 bg-gray-100 flex items-center justify-center">
+    <div v-else class="w-full h-48 sm:h-56 bg-gray-100 flex items-center justify-center">
       <i class="fa fa-newspaper-o text-gray-400 text-4xl"></i>
     </div>
 
     <!-- News Content -->
-    <div class="p-4">
+    <div class="p-5">
       <!-- Category and Status -->
-      <div class="flex justify-between items-start mb-2">
-        <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+      <div class="flex justify-between items-start mb-3">
+        <span class="text-xs font-medium bg-gray-100 text-gray-700 px-2 py-1 rounded-full transition-colors hover:bg-gray-200">
           {{ news.category }}
         </span>
-        <span v-if="status" class="text-xs px-2 py-1 rounded-full" :class="statusClass">
+        <span v-if="status" class="text-xs font-medium px-2 py-1 rounded-full transition-transform hover:scale-105" :class="statusClass">
           {{ statusText }}
         </span>
       </div>
 
       <!-- Title -->
-      <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
-        <router-link :to="'/news/' + news.id">{{ news.title }}</router-link>
+      <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2 hover:text-blue-600 transition-colors duration-300">
+        <router-link :to="'/news/' + news.id" class="block hover:underline decoration-2 underline-offset-4">
+          {{ news.title }}
+        </router-link>
       </h3>
 
       <!-- Description -->
       <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ news.description }}</p>
 
       <!-- Footer -->
-      <div class="flex justify-between items-center text-xs text-gray-500">
-        <div>
-          <i class="fa fa-user-o mr-1"></i> {{ news.submitterName }}
+      <div class="flex justify-between items-center text-xs text-gray-500 mb-3">
+        <div class="flex items-center space-x-1">
+          <i class="fa fa-user-o"></i> <span>{{ news.submitterName }}</span>
         </div>
-        <div>{{ formatDate(news.submitTime) }}</div>
+        <div class="flex items-center space-x-1">
+          <i class="fa fa-clock-o"></i> <span>{{ formatDate(news.submitTime) }}</span>
+        </div>
       </div>
 
       <!-- Voting Summary -->
-      <div class="mt-3 pt-3 border-t border-gray-100">
-        <div class="flex items-center justify-between text-sm">
-          <div class="text-gray-600">
-            <i class="fa fa-bar-chart mr-1"></i> 投票: {{ totalVotes }} 票
+      <div class="mt-4 pt-4 border-t border-gray-100">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="text-gray-600 text-sm flex items-center space-x-1">
+            <i class="fa fa-bar-chart"></i> <span>投票: {{ totalVotes }} 票</span>
           </div>
-          <div v-if="totalVotes > 0" class="flex items-center gap-2">
-            <div class="flex items-center text-red-500">
-              <i class="fa fa-times-circle mr-1"></i>
+          <div v-if="totalVotes > 0" class="flex items-center gap-3">
+            <div class="flex items-center text-red-500 text-sm font-medium space-x-1">
+              <i class="fa fa-times-circle"></i>
               <span>{{ fakePercentage }}%</span>
             </div>
-            <div class="flex items-center text-green-500">
-              <i class="fa fa-check-circle mr-1"></i>
+            <div class="flex items-center text-green-500 text-sm font-medium space-x-1">
+              <i class="fa fa-check-circle"></i>
               <span>{{ notFakePercentage }}%</span>
             </div>
           </div>
@@ -56,9 +64,9 @@
       </div>
 
       <!-- Comments Count -->
-      <div class="mt-2 text-xs text-gray-500">
-        <i class="fa fa-comments-o mr-1"></i>
-        {{ news.comments.length }} 条评论
+      <div class="mt-3 text-xs text-gray-500 flex items-center space-x-1">
+        <i class="fa fa-comments-o"></i>
+        <span>{{ news.comments.length }} 条评论</span>
       </div>
     </div>
   </div>
